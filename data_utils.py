@@ -37,8 +37,8 @@ def classify_affordability(pti: float):
         return "Impossibly Unaffordable"
 
 
-@st.cache_data(show_spinner="Loading HouseTS.csv …")
-def load_raw_data(path: str = "data/HouseTS.csv") -> pd.DataFrame:
+@st.cache_data(show_spinner="Loading HouseTS_reduced.csv …")
+def load_raw_data(path: str = "data/HouseTS_reduced.csv") -> pd.DataFrame:
     """Read the raw HouseTS CSV."""
     return pd.read_csv(path)
 
@@ -123,20 +123,13 @@ def composite_series(df: pd.DataFrame) -> pd.DataFrame:
 
 def yearly_metro_summary(df: pd.DataFrame) -> pd.DataFrame:
     """
-    One row per (city_full, year) summarizing PTI, rent burden and
-    market tightness indicators.
-
-    Uses original columns:
-      inventory, median_dom, avg_sale_to_list
+    One row per (city_full, year) summarizing PTI, rent burden
     """
     summary = (
         df.groupby(["city_full", "year"], as_index=False)
         .agg(
             price_to_income=("price_to_income", "mean"),
             rent_to_income=("rent_to_income", "mean"),
-            inventory=("inventory", "mean"),
-            dom=("median_dom", "mean"),
-            sale_to_list_ratio=("avg_sale_to_list", "mean"),
         )
     )
 
