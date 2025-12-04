@@ -114,24 +114,41 @@ with tab1:
         )
 
 with tab2:
-    st.subheader("2. Metro Affordability Divergence")
+    
+    col_left, col_right = st.columns([2.3, 1])   # wider left column, narrower right
 
-    st.markdown(
-        """
-        Even though national averages show prices growing faster than incomes,
-        the **severity varies dramatically across metros**.
+    with col_left:
+        st.subheader("2. Metro Affordability Divergence")
+        st.markdown(
+            """
+            Even though national averages show prices growing faster than incomes,
+            the **severity varies dramatically across metros**.
 
-        This chapter ranks metros by **Price-to-Income ratio (PTI)** and
-        traces their affordability trajectories over time.
+            This chapter ranks metros by **Price-to-Income ratio (PTI)** and
+            traces their affordability trajectories over time.
+            """
+        )
 
-        ### Why PTI matters
-        PTI is a simple measure:
-        **PTI = Median Home Price / Median Household Income**
-
-        - Higher PTI → **less affordable** (homes cost many multiples of income)
-        - Lower PTI → **more attainable**
-        """
-    )
+    with col_right:
+        st.markdown(
+            """
+            <div style="
+                padding: 1rem;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                background-color: #fafafa;
+            ">
+                <h4 style="margin-top: 0;">Why PTI matters</h4>
+                PTI is a simple measure:<br>
+                <b>PTI = Median Home Price / Median Household Income</b>
+                <ul>
+                    <li>Higher PTI → <b>less affordable</b></li>
+                    <li>Lower PTI → <b>more attainable</b></li>
+                </ul>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     # Fixed focus year (no slider)
     focus_year = 2023
@@ -190,7 +207,7 @@ with tab3:
         - **Moderately Unaffordable**: PTI 3.1–4.0  
         - **Seriously Unaffordable**: PTI 4.1–5.0  
         - **Severely Unaffordable**: PTI 5.1-8.9  
-        - **Impossibly Unaffordable**: PTI > 9.0 (extended category)
+        - **Impossibly Unaffordable**: PTI ≥ 9.0
         """
     )
 
@@ -201,16 +218,6 @@ with tab3:
         affordability_bands_with_us_ratio(counts, comp),
         use_container_width=True,
         )
-
-
-        # st.plotly_chart(
-        #     composite_pti_bands_chart(comp),
-        #     use_container_width=True,
-        # )
-        
-        st.markdown(
-            "*Affordability levels were provided by the Center for Demographics and Policy ([Demographia International Housing Affordability, 2025 Edition](https://www.chapman.edu/communication/_files/Demographia-International-Housing-Affordability-2025-Edition.pdf)).*"
-            )
 
     with st.container(border=True):
         st.markdown(

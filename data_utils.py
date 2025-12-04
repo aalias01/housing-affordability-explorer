@@ -66,7 +66,7 @@ def add_derived_columns(df_raw: pd.DataFrame) -> pd.DataFrame:
     income_pc = df["Per Capita Income"].replace(0, np.nan)
     rent = df["Median Rent"].replace(0, np.nan)
     
-    AVERAGE_HOUSEHOLD_SIZE = 2.51
+    AVERAGE_HOUSEHOLD_SIZE = 2.54
     df["median_household_income_est"] = income_pc * AVERAGE_HOUSEHOLD_SIZE
 
     # core ratios
