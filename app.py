@@ -237,8 +237,8 @@ with tab4:
             - For renters, costs have grown slowly and predictably relative to income.
             - For buyers, costs have surged far faster than incomes can keep up with.
 
-            Bottom Line:
-            Renting still looks affordable in the data, but the leap to homeownership is becoming increasingly unattainable.
+            **Bottom Line**:
+            Renting remains more closely coupled to income, but the leap to homeownership has become increasingly unattainable.
             """
         )
 
