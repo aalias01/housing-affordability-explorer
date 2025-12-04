@@ -130,28 +130,19 @@ with tab2:
         )
 
     with col_right:
-        st.markdown(
-            """
-            <div style="
-                padding: 1rem;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                background-color: #fafafa;
-            ">
-                <h4 style="margin-top: 0;">Why PTI matters</h4>
-                PTI is a simple measure:<br>
-                <b>PTI = Median Home Price / Median Household Income</b>
-                <ul>
-                    <li>Higher PTI → <b>less affordable</b></li>
-                    <li>Lower PTI → <b>more attainable</b></li>
-                </ul>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        with st.container(border=True):
+            st.markdown("#### What is PTI?")
+            st.markdown(
+                """
+                PTI is a simple measure:  
+                **PTI = Median Home Price / Median Household Income**
 
-    # Fixed focus year (no slider)
-    focus_year = 2023
+                - Higher PTI → **less affordable**  
+                - Lower PTI → **more attainable**
+                """
+            )
+
+        focus_year = 2023
 
     # Chart in a bordered container
     with st.container(border=True):
