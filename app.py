@@ -50,21 +50,6 @@ st.set_page_config(
 
 st.title("Housing Affordability Explorer - Overview")
 
-st.markdown(
-    """
-    ### Why this matters
-
-    Since the early 2010s, **home prices in many U.S. metros have grown much faster
-    than incomes**. This app explores:
-
-    - How **home prices vs incomes** have moved over time (composite U.S. series)
-    - How **Price-to-Income (PTI)** varies across metros and diverges over time
-    - Why **owning** a home has become less affordable even while **rent burden** looks more stable
-
-    Use the tabs below to move through the story, or jump straight to a specific chapter.
-    """
-)
-
 
 # ---- load & prep data ----
 raw = load_raw_data()
