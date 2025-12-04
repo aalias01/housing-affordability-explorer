@@ -52,9 +52,6 @@ def add_derived_columns(df_raw: pd.DataFrame) -> pd.DataFrame:
     - median_sale_price
     - Median Rent
     - Per Capita Income
-    - inventory
-    - median_dom
-    - avg_sale_to_list
     - city_full
     - year
     """

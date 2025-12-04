@@ -13,32 +13,42 @@ from data_utils import (
 )
 from charts import (
     composite_price_income_index_chart,
-    composite_pti_bands_chart,
-    affordability_stack_chart,
+    #composite_pti_bands_chart,
     metro_pti_lines,
-    pti_ladder_bar,
-    rating_heatmap,
     composite_rent_to_income,
-    metro_rent_to_income,
-    top_rent_burden,
-    yoy_pti_change,
-    composite_dom_inventory,
-    composite_sale_to_list,
     metro_snapshot_bar,
+    affordability_bands_with_us_ratio,
 )
 
-with st.sidebar:
-    st.title("🏠 Project Navigation")
+# ----- GLOBAL STYLE FIXES -----
+st.markdown(
+    """
+    <style>
+    .block-container {
+        padding-top: 0.2rem !important;
+    }
+    h1 {
+        margin-top: 0rem !important;
+        margin-bottom: 0.0rem !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-    st.markdown("### 📑 Jump To")
+
+# with st.sidebar:
+#     st.title("🏠 Project Navigation")
+
+#     st.markdown("### 📑 Jump To")
    
 
 st.set_page_config(
-    page_title="Housing Affordability Story - HouseTS",
+    page_title="Housing Affordability Story",
     layout="wide",
 )
 
-st.title("Housing Affordability Explorer (HouseTS)")
+st.title("Housing Affordability Explorer - Overview")
 
 st.markdown(
     """
@@ -68,36 +78,41 @@ year_latest = latest_year(summary)
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "1. Prices vs Incomes (Macro Trend)",
     "2. Metro Affordability Divergence",
-    "3. Rent Burden vs Ownership Burden",
-    "4. Affordability Bands (Demographia)",
+    "3. Affordability Bands",
+    "4. Rent Burden vs Ownership Burden",
     "5. 2023 Metro Snapshot",
 ])
-
-# ----- CHAPTER 1 -----
+        
 with tab1:
     st.subheader("1. Prices vs Incomes (Macro Trend)")
 
     st.markdown(
         """
-        Home prices and household incomes do not move together.  
-        This chapter compares both series indexed to **2012 = 100**.
+        Home prices and household incomes do not move together. This chapter compares both series indexed to **2012 = 100**.
 
-        ### What to notice
-        - If home prices and incomes grew at the same rate, the lines would stay close.
-        - Instead, **home prices outpaced incomes throughout the last decade.**
-        - This widening gap sets the foundation for today’s affordability pressures.
-
-        The macro trend answers the first big question:  
-        **Is the U.S. housing affordability problem structural?**  
-        The answer is yes—prices have consistently pulled away from incomes.
+        The macro trend answers the first big question: **Is the U.S. housing affordability problem structural?**  
+        The answer is: Yes, prices have consistently pulled away from incomes.
         """
     )
 
-    st.plotly_chart(composite_price_income_index_chart(comp), use_container_width=True)
+    
+    with st.container(border=True):
+        st.plotly_chart(
+            composite_price_income_index_chart(comp),
+            use_container_width=True,
+        )
+    
+    with st.container(border=True):
 
+        st.markdown(
+            """
+            ### What We notice
+            - If home prices and incomes grew at the same rate, the lines would stay close.  
+            - **Home prices outpaced incomes throughout the last decade.**  
+            - This widening gap sets the foundation for today’s affordability pressures.
+            """
+        )
 
-
-# ----- CHAPTER 2 -----
 with tab2:
     st.subheader("2. Metro Affordability Divergence")
 
@@ -111,34 +126,26 @@ with tab2:
 
         ### Why PTI matters
         PTI is a simple measure:
-        **PTI = Median Home Price / Per Capita Income**
+        **PTI = Median Home Price / Median Household Income**
 
         - Higher PTI → **less affordable** (homes cost many multiples of income)
         - Lower PTI → **more attainable**
-
-        ### What to explore
-        - How metro rankings change depending on the chosen focus year  
-        - Which metros have become “outliers” (extreme PTI)  
-        - Whether affordable metros stayed affordable or caught up to expensive ones
-
-        The story:  
-        **Housing affordability is not evenly distributed—metros are splitting into different trajectories.**
         """
     )
 
-    rank_year = st.slider(
-        "Choose a year to rank metros by PTI:",
-        int(summary["year"].min()),
-        int(summary["year"].max()),
-        latest_year(summary),
-        key="rank_year_metros",
-    )
+    # Fixed focus year (no slider)
+    focus_year = 2023
 
-    st.plotly_chart(metro_pti_lines(df, focus_year=rank_year), use_container_width=True)
+    # Chart in a bordered container
+    with st.container(border=True):
+        st.plotly_chart(
+            metro_pti_lines(df, focus_year=focus_year),
+            use_container_width=True,
+        )
 
     # --- compute top/bottom 7 metros for that year using `summary` ---
     summary_year = (
-        summary[summary["year"] == rank_year]
+        summary[summary["year"] == focus_year]
         .dropna(subset=["price_to_income"])
     )
 
@@ -154,49 +161,29 @@ with tab2:
         .tolist()
     )
 
-    # --- list them under the chart ---
-    st.markdown("### Metros Highlighted")
-    st.markdown(f"**Top 7 (Least Affordable):** {', '.join(top7)}")
-    st.markdown(f"**Bottom 7 (Most Affordable):** {', '.join(bottom7)}")
+    # --- list in a card-style container ---
+    with st.container(border=True):
+        st.markdown(
+            """
+            ### What We Notice
+            - Which metros have become “outliers” (extreme PTI)  
+            - Whether affordable metros stayed affordable or caught up to expensive ones
+
+            The story:  
+            **Housing affordability is not evenly distributed—metros are splitting into different trajectories.**
+            """
+        )
+        st.markdown(f"### Metros Highlighted in {focus_year}")
+        st.markdown(f"**Top 7 (Least Affordable – highest PTI):** {', '.join(top7)}")
+        st.markdown(f"**Bottom 7 (Most Affordable – lowest PTI):** {', '.join(bottom7)}")
 
 # ----- CHAPTER 3 -----
 with tab3:
-    st.subheader("3. Rent Burden vs Ownership Burden")
+    st.subheader("3. Affordability Bands")
 
     st.markdown(
         """
-        The affordability crisis looks very different depending on whether
-        a household is **renting** or **buying**.
-
-        ### Key insight
-        - **PTI (ownership burden)** has risen sharply.
-        - **Rent-to-Income ratio** has stayed **much flatter** by comparison.
-
-        This contrast suggests:
-        - The **cost of buying** has become disproportionately harder.
-        - Renting has remained relatively stable for many households.
-        - The affordability crisis is **more intense for would-be buyers** than for current renters.
-
-        This chapter helps us understand why homeownership feels increasingly out of reach,
-        even if renting seems manageable on paper.
-        """
-    )
-
-    st.plotly_chart(
-        composite_rent_to_income(summary),
-        use_container_width=True,
-    )
-
-# ----- CHAPTER 4 -----
-with tab4:
-    st.subheader("4. Affordability Bands (Demographia)")
-
-    st.markdown(
-        """
-        PTI ratios become even more meaningful when grouped into
-        **Demographia-style affordability categories**.
-
-        These bands summarize **how difficult it is to buy a median home** in each metro.
+        PTI ratios become even more meaningful when grouped into **affordability categories**.  
 
         ### PTI Affordability Categories
         - **Affordable**: PTI ≤ 3.0  
@@ -204,26 +191,72 @@ with tab4:
         - **Seriously Unaffordable**: PTI 4.1–5.0  
         - **Severely Unaffordable**: PTI 5.1-8.9  
         - **Impossibly Unaffordable**: PTI > 9.0 (extended category)
-
-        ### Why this matters
-        - Bands show **not just trends**, but **distribution shifts**.
-        - More metros are moving into the **higher PTI categories**.
-        - This reveals a **structural drift toward unaffordability**, not just short-term volatility.
-
-        In short:  
-        **Many metros have crossed from difficult… to severe… to nearly impossible for median-income households.**
         """
     )
 
     year_focus = latest_year(summary)
-
-    st.plotly_chart(
-        composite_pti_bands_chart(comp),
-        use_container_width=True,
-    )
     
+    with st.container(border=True):
+        st.plotly_chart(
+        affordability_bands_with_us_ratio(counts, comp),
+        use_container_width=True,
+        )
+
+
+        # st.plotly_chart(
+        #     composite_pti_bands_chart(comp),
+        #     use_container_width=True,
+        # )
+        
+        st.markdown(
+            "*Affordability levels were provided by the Center for Demographics and Policy ([Demographia International Housing Affordability, 2025 Edition](https://www.chapman.edu/communication/_files/Demographia-International-Housing-Affordability-2025-Edition.pdf)).*"
+            )
+
+    with st.container(border=True):
+        st.markdown(
+            """
+        ### What We Notice
+        - Each year, fewer metros remain in the Affordable category, while more are moving into higher PTI ranges.
+        - This indicates a structural and widespread drift toward unaffordability, rather than short-term volatility or isolated market spikes.
+
+        In short:  
+        A decade ago, many metros were still reasonably affordable for median-income households.
+        Today, a growing share has moved into seriously, severely, or even impossibly unaffordable territory.
+        """
+        )
+
+# ----- CHAPTER 4 -----
+with tab4:
+    st.subheader("4. Rent Burden vs Ownership Burden")
+
     st.markdown(
-        "*Affordability levels were provided by the Center for Demographics and Policy ([Demographia International Housing Affordability, 2025 Edition](https://www.chapman.edu/communication/_files/Demographia-International-Housing-Affordability-2025-Edition.pdf)).*"
+        """
+        The affordability crisis looks very different depending on whether
+        a household is **renting** or **buying**.
+        """
+    )
+
+    with st.container(border=True):
+        st.plotly_chart(
+            composite_rent_to_income(summary),
+            use_container_width=True,
+        )
+        
+    with st.container(border=True):
+        st.markdown(
+            """
+            ### Key insight
+            Earlier chapters showed that home prices have pulled far ahead of incomes, pushing ownership burden sharply upward.  
+            This chart adds another dimension: rent burden hasn’t moved much at all.
+
+            Together, these trends reveal that:
+            - The affordability crisis is not uniform.
+            - For renters, costs have grown slowly and predictably relative to income.
+            - For buyers, costs have surged far faster than incomes can keep up with.
+
+            Bottom Line:
+            Renting still looks affordable in the data, but the leap to homeownership is becoming increasingly unattainable.
+            """
         )
 
 # ----- CHAPTER 5 -----
@@ -233,7 +266,17 @@ with tab5:
     st.markdown(
         """
         This final chapter provides a **recent snapshot** of affordability conditions.
+        """
+    )
 
+    fig = metro_snapshot_bar(summary)
+
+    with st.container(border=True):
+        st.plotly_chart(fig, use_container_width=True)
+
+    with st.container(border=True):
+        st.markdown(
+        """
         ### What you can see here
 
         - PTI levels for all metros in the most recent year  
@@ -241,8 +284,4 @@ with tab5:
         - Which metros remain relatively **more attainable**  
         - How these map into our affordability bands
         """
-    )
-
-    fig = metro_snapshot_bar(summary)
-
-    st.plotly_chart(fig, use_container_width=True)
+        )
